@@ -1,0 +1,15 @@
+/node_modules
+/dist
+/src-tauri/target
+/src-tauri/gen
+/release
+/site
+/.notebook
+/.specs
+*.log
+*.pfx
+*.p12
+*.pem
+*.key
+profiles.json
+*.firawssh-backup

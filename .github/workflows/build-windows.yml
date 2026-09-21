@@ -1,0 +1,62 @@
+name: Build Windows installer
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 90
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked frontend dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Test Rust backend
+        shell: pwsh
+        run: cargo test --manifest-path .\src-tauri\Cargo.toml --locked
+
+      - name: Build NSIS installer from source
+        run: npm run tauri -- build --bundles nsis
+
+      - name: Record provenance
+        shell: pwsh
+        run: |
+          $bundle = ".\src-tauri\target\release\bundle\nsis"
+          $files = Get-ChildItem -LiteralPath $bundle -File | ForEach-Object {
+            [ordered]@{ name = $_.Name; sha256 = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() }
+          }
+          [ordered]@{
+            repository = "${{ github.server_url }}/${{ github.repository }}"
+            commit = "${{ github.sha }}"
+            run = "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            files = $files
+          } | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $bundle "provenance.json") -Encoding utf8
+
+      - name: Upload unsigned artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: firaw-ssh-windows-${{ github.sha }}
+          path: src-tauri/target/release/bundle/nsis/*
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0

@@ -1,0 +1,45 @@
+.service-actions {
+  display: flex;
+  gap: 8px;
+  max-width: 980px;
+  margin: 14px 0;
+}
+
+.service-message {
+  max-width: 980px;
+  margin-bottom: 14px;
+}
+
+.key-auth-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 18px;
+}
+
+.key-file,
+.key-auth-note {
+  grid-column: 1 / -1;
+}
+
+.secret-card {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #0a111b;
+}
+
+.key-auth-note strong {
+  color: #d8f8fc;
+}
+
+@media (max-width: 1000px) {
+  .key-auth-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .key-file,
+  .key-auth-note {
+    grid-column: auto;
+  }
+}
