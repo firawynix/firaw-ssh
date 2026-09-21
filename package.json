@@ -1,7 +1,7 @@
 {
   "name": "firaw-ssh",
   "private": true,
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Cliente SSH, SFTP e túneis da Firawynix para Windows e Linux",
   "type": "module",
   "scripts": {

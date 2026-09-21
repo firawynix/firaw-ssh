@@ -53,6 +53,11 @@ O instalador NSIS é criado em `src-tauri/target/release/bundle/nsis/`. No Linux
 `tools/build-linux-prepared.sh` gera AppImage e `.deb` usando um ambiente com as
 dependências de GTK/WebKit do Tauri já preparadas.
 
+No Windows, o build usa `tools/sign-windows.ps1`. Sem configuração ele mantém os
+artefatos sem assinatura (como no build público verificável). Para uma publicação
+interna, `FIRAW_SIGNING_THUMBPRINT` e `FIRAW_SIGNTOOL` fazem o Tauri assinar o
+programa, os componentes do instalador e o NSIS final com timestamp.
+
 ## Segurança
 
 O arquivo `profiles.json` contém apenas opções não secretas. Credenciais marcadas para salvar são armazenadas no cofre do sistema, vinculadas ao usuário conectado. A primeira conexão exige confirmação da impressão digital do servidor; uma mudança posterior bloqueia a conexão.
