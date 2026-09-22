@@ -3,6 +3,7 @@
 /src-tauri/target
 /src-tauri/gen
 /release
+/artifacts
 /site
 /.notebook
 /.specs
