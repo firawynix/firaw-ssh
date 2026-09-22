@@ -1,5 +1,7 @@
 import { Files, TerminalSquare } from 'lucide-react';
 import { listen } from '@tauri-apps/api/event';
+import { relaunch } from '@tauri-apps/plugin-process';
+import { check } from '@tauri-apps/plugin-updater';
 import { useEffect, useState } from 'react';
 import { api, blankProfile, readableError, type BridgeAuditEntry, type ExternalEditEvent, type Profile, type TransferEvent } from './api';
 import ProfileEditor from './ProfileEditor';
@@ -24,6 +26,7 @@ export default function App(){
   const refresh=async(selectId?:string)=>{try{const list=await api.listProfiles();setProfiles(list);if(selectId){const p=list.find(x=>x.id===selectId);if(p)setCurrent(p)}else if(!current.id&&list[0])setCurrent(list[0])}catch(e){setToast(readableError(e).message)}};
   const refreshAudit=async()=>{try{setAudit(await api.listBridgeAudit())}catch{}};
   useEffect(()=>{void refresh();void refreshAudit()},[]);
+  useEffect(()=>{void (async()=>{try{const update=await check();if(update){setToast(`Atualizando o Firaw SSH para ${update.version}…`);await update.downloadAndInstall();await relaunch()}}catch{}})()},[]);
   useEffect(()=>{const transfer=listen<TransferEvent>('transfer-progress',e=>{if(['completed','failed','cancelled'].includes(e.payload.status))setToast(e.payload.message)});const editor=listen<ExternalEditEvent>('external-edit-status',e=>{if(e.payload.status==='saved'||e.payload.status==='conflict'||e.payload.status==='failed')setToast(e.payload.message)});const bridge=listen<{status:string;message:string}>('bridge-event',e=>{void refreshAudit();if(e.payload.status!=='started')setToast(e.payload.message)});return()=>{void transfer.then(fn=>fn());void editor.then(fn=>fn());void bridge.then(fn=>fn())}},[]);
   const loadCredentials=(p:Profile)=>{setPassword('');setPassphrase('');setSavePassword(p.hasPassword);setSavePassphrase(p.hasPassphrase)};
   const selectForEdit=(p:Profile)=>{setCurrent(p);loadCredentials(p);setView('profile')};
