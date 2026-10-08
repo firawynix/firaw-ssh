@@ -36,7 +36,7 @@ jobs:
         run: cargo test --manifest-path .\src-tauri\Cargo.toml --locked
 
       - name: Build NSIS installer from source
-        run: npm run tauri -- build --bundles nsis
+        run: npm run tauri -- build --bundles nsis --config packaging/windows/no-updater-artifacts.json
 
       - name: Record provenance
         shell: pwsh
